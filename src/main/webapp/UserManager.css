@@ -1,0 +1,64 @@
+/** Add css rules here for your application. */
+button {
+  width: 130px;
+}
+
+.usersTable {
+  border: 1px solid silver;
+  padding: 2px;
+  margin-top: 10px;
+  border-collapse: collapse;
+}
+
+.usersTableHeader {
+  background-color: #681de0;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+}
+
+.usersTable td {
+  border: 1px solid silver;
+  padding: 10px;
+}
+
+.usersTable tr:not(.usersTableHeader):hover {background-color: #dfd6f5}
+
+.usersTable tr:not(.usersTableHeader):nth-child(even) {background-color: #f2f2f2}
+.usersTable tr:not(.usersTableHeader):nth-child(even):hover {background-color: #dfd6f5}
+
+/** Example rules used by the template application (remove for your app) */
+h1 {
+  font-size: 2em;
+  font-weight: bold;
+  color: #777777;
+  margin: 40px 0px 30px;
+  text-align: center;
+}
+
+.gwt-Button-cancel {
+  width: 80px;
+}
+
+
+.gwt-Button-ok {
+  width: 80px;
+}
+
+/** Most GWT widgets already have a style name defined */
+.gwt-DialogBox {
+  width: 300px;
+}
+
+.dialogVPanel {
+  margin: 5px;
+}
+
+.serverResponseLabelError {
+  color: red;
+}
+
+/** Set ids using widget.getElement().setId("idOfElement") */
+#closeButton {
+  margin: 15px 6px 6px;
+}

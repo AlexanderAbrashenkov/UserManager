@@ -206,17 +206,17 @@ public class UserManager implements EntryPoint {
     List<Integer> rowsToRemove = getCheckedRowIndexes();
 
     if (rowsToRemove.size() == 0) {
-      showMessage("Вы не выбрали пользователя для удаления");
+      showMessage("Вы не выбрали сотрудника для удаления");
       return;
     } else if (rowsToRemove.size() > 1) {
-      showMessage("К сожалению, пока можно удалять только по одному пользователю");
+      showMessage("К сожалению, пока можно удалять только по одному сотруднику");
       return;
     } else {
       String userToRemove = usersFlexTable.getText(rowsToRemove.get(0), 1) + " "
               + usersFlexTable.getText(rowsToRemove.get(0), 2) + " "
               + usersFlexTable.getText(rowsToRemove.get(0), 3);
 
-      boolean canRemove = Window.confirm("Вы действительно хотите удалить пользователя " + userToRemove + "?");
+      boolean canRemove = Window.confirm("Вы действительно хотите удалить сотрудника " + userToRemove + "?");
       if (canRemove) {
         removeUser(rowsToRemove);
       } else {
@@ -230,7 +230,7 @@ public class UserManager implements EntryPoint {
     userService.removeUser(userToRemove, new MethodCallback<Boolean>() {
       @Override
       public void onFailure(Method method, Throwable throwable) {
-        showMessage("Не удалось удалить пользователя. Ошибка: " + throwable.getMessage());
+        showMessage("Не удалось удалить сотрудника. Ошибка: " + throwable.getMessage());
       }
 
       @Override
@@ -251,20 +251,20 @@ public class UserManager implements EntryPoint {
   private void updateUser() {
     List<Integer> checkedRows = getCheckedRowIndexes();
     if (checkedRows.size() == 0) {
-      showMessage("Не выбран пользователь для редактирования");
+      showMessage("Не выбран сотрудник для редактирования");
       return;
     }
 
     if (checkedRows.size() > 1) {
-      showMessage("Можно редактировать только одного пользователя");
+      showMessage("Можно редактировать только одного сотрудника");
       return;
     }
 
     int row = checkedRows.get(0);
     UserDto user = userList.get(row - 1);
 
-    dialogBox.setText("Редактирование пользователя");
-    okButton.setText("Сохранить");
+    dialogBox.setText("Редактирование сотрудника");
+    okButton.setText("Изменить");
     lastNameTextBox.setText(user.getLastName());
     firstNameTextBox.setText(user.getFirstName());
     patronymicTextBox.setText(user.getPatronymic());
@@ -297,7 +297,7 @@ public class UserManager implements EntryPoint {
   }
 
   private void addNewUser() {
-    dialogBox.setText("Добавление пользователя");
+    dialogBox.setText("Добавление сотрудника");
     okButton.setText("Добавить");
     if (null != okButtonHandler)
       okButtonHandler.removeHandler();
@@ -311,7 +311,7 @@ public class UserManager implements EntryPoint {
       userService.saveUser(newUser, new MethodCallback<Integer>() {
         @Override
         public void onFailure(Method method, Throwable throwable) {
-          showMessage("Не удалось сохранить пользователя. Ошибка: " + throwable.getMessage());
+          showMessage("Не удалось сохранить сотрудника. Ошибка: " + throwable.getMessage());
         }
 
         @Override
@@ -379,7 +379,7 @@ public class UserManager implements EntryPoint {
     UserDto newUser = new UserDto(lastName, firstName, patronymic, birthDate);
 
     if (userList.contains(newUser)) {
-      showMessage("Такой пользователь уже добавлен");
+      showMessage("Такой сотрудник уже добавлен");
       return null;
     }
 

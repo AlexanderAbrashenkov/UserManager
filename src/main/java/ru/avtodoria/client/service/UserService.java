@@ -8,6 +8,9 @@ import ru.avtodoria.shared.dto.UserDto;
 import javax.ws.rs.*;
 import java.util.List;
 
+/**
+ * RestyGWT CRUD methods for communication with server
+ */
 public interface UserService extends RestService {
     @GET
     @Path("users")

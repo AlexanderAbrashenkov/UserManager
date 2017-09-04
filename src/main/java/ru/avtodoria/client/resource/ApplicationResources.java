@@ -6,6 +6,9 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.resources.client.ImageResource.RepeatStyle;
 
+/**
+ *  Resource bundle for images
+ */
 public interface ApplicationResources extends ClientBundle {
     public static final ApplicationResources INSTANCE = GWT.create(ApplicationResources.class);
     

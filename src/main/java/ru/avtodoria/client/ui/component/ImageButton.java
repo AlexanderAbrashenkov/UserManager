@@ -6,6 +6,11 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Image;
 
+/**
+ * Custom component to extend simple button and add
+ * resource image integration
+ *
+ */
 public class ImageButton extends Button {
 	private String text;
 
@@ -13,11 +18,16 @@ public class ImageButton extends Button {
 		super();
 	}
 
+
 	public ImageButton(ImageResource imageResource, String text) {
 		setText(text);
 		setResource(imageResource);
 	}
 
+	/**
+	 * reference to the image resource bundle
+	 * @param imageResource
+	 */
 	public void setResource(ImageResource imageResource) {
 		Image img = new Image(imageResource);
 		String definedStyles = img.getElement().getAttribute("style");
@@ -27,6 +37,10 @@ public class ImageButton extends Button {
 				DOM.getFirstChild(getElement()));
 	}
 
+	/**
+	 * text on the button
+	 * @param text text
+	 */
 	@SuppressWarnings("deprecation")
 	@Override
 	public void setText(String text) {

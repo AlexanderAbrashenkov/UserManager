@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(User user) {
-        User userToUpdate = userRepository.getOne(user.getId());
+        User userToUpdate = userRepository.findOne(user.getId());
         userToUpdate.setLastName(user.getLastName());
         userToUpdate.setFirstName(user.getFirstName());
         userToUpdate.setPatronymic(user.getPatronymic());

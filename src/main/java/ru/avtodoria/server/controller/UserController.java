@@ -44,4 +44,11 @@ public class UserController {
         UserDto resultUserDto = new UserDto(resultUser.getId(), resultUser.getLastName(), resultUser.getFirstName(), resultUser.getPatronymic(), resultUser.getBirthDate());
         return new ResponseEntity<UserDto>(resultUserDto, HttpStatus.OK);
     }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Boolean> deleteUser (@RequestBody UserDto userDto) {
+        User user = new User(userDto);
+        boolean result = userService.deleteUser(user);
+        return new ResponseEntity<Boolean>(result, HttpStatus.OK);
+    }
 }

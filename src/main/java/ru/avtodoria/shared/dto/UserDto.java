@@ -72,7 +72,6 @@ public class UserDto implements Serializable {
     }
 
     public void copyUser (UserDto user) {
-        this.id = user.getId();
         this.lastName = user.getLastName();
         this.firstName = user.getFirstName();
         this.patronymic = user.getPatronymic();
@@ -88,5 +87,27 @@ public class UserDto implements Serializable {
                 ", patronymic='" + patronymic + '\'' +
                 ", birthDate=" + birthDate +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserDto userDto = (UserDto) o;
+
+        if (!lastName.equals(userDto.lastName)) return false;
+        if (!firstName.equals(userDto.firstName)) return false;
+        if (!patronymic.equals(userDto.patronymic)) return false;
+        return birthDate.equals(userDto.birthDate);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = lastName.hashCode();
+        result = 31 * result + firstName.hashCode();
+        result = 31 * result + patronymic.hashCode();
+        result = 31 * result + birthDate.hashCode();
+        return result;
     }
 }

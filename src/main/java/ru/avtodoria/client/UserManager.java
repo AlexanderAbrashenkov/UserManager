@@ -48,10 +48,10 @@ public class UserManager implements EntryPoint {
     addButton.addClickHandler(clickEvent -> addNewUser());
 
     ImageButton editButton = new ImageButton(ApplicationResources.INSTANCE.editIcon(), "Изменить");
-    editButton.addClickHandler(clickEvent -> editUser());
+    editButton.addClickHandler(clickEvent -> updateUser());
 
     ImageButton removeButton = new ImageButton(ApplicationResources.INSTANCE.deleteIcon(), "Удалить");
-    removeButton.addClickHandler(clickEvent -> removeUsers());
+    removeButton.addClickHandler(clickEvent -> removeUser());
 
     ImageButton reloadButton = new ImageButton(ApplicationResources.INSTANCE.loadIcon(), "Обновить все");
     reloadButton.addClickHandler(clickEvent -> reloadUsers());
@@ -67,14 +67,15 @@ public class UserManager implements EntryPoint {
     usersFlexTable.setText(0,2,"Имя");
     usersFlexTable.setText(0,3,"Отчество");
     usersFlexTable.setText(0,4,"Дата рождения");
+    usersFlexTable.setText(0,5,"Id");
     usersFlexTable.getColumnFormatter().setWidth(0, "40px");
     usersFlexTable.getColumnFormatter().setWidth(1, "150px");
     usersFlexTable.getColumnFormatter().setWidth(2, "150px");
     usersFlexTable.getColumnFormatter().setWidth(3, "150px");
     usersFlexTable.getColumnFormatter().setWidth(4, "150px");
 
-    usersFlexTable.getRowFormatter().addStyleName(0, "usersTableHeader");
     usersFlexTable.addStyleName("usersTable");
+    usersFlexTable.getRowFormatter().addStyleName(0, "usersTableHeader");
 
     mainPanel.add(buttonsPanel);
     mainPanel.add(usersFlexTable);
@@ -86,8 +87,13 @@ public class UserManager implements EntryPoint {
     createDialogBox();
 
     createMessageDialogBox();
+
+    reloadUsers();
   }
 
+  /**
+   * Creates module window for creating and updating user
+   */
   private void createDialogBox() {
     dialogBox.setAnimationEnabled(true);
     dialogBox.setGlassEnabled(true);
@@ -131,6 +137,7 @@ public class UserManager implements EntryPoint {
     });
   }
 
+
   private void clearAndCloseDialogBox() {
     lastNameTextBox.setText("");
     firstNameTextBox.setText("");
@@ -139,6 +146,9 @@ public class UserManager implements EntryPoint {
     dialogBox.hide();
   }
 
+  /**
+   * Creates module window for error and other messages
+   */
   private void createMessageDialogBox() {
     messageDialogBox.setAnimationEnabled(true);
     messageDialogBox.setGlassEnabled(true);
@@ -169,12 +179,11 @@ public class UserManager implements EntryPoint {
     userService.getUserList(new MethodCallback<List<UserDto>>() {
       @Override
       public void onFailure(Method method, Throwable throwable) {
-        Window.alert("error = " + throwable.getMessage());
+        showMessage("Не удалось подключиться к серверу");
       }
 
       @Override
       public void onSuccess(Method method, List<UserDto> userDtos) {
-        Window.alert("response = " + userDtos);
         userList.clear();
         userList.addAll(userDtos);
 
@@ -193,56 +202,53 @@ public class UserManager implements EntryPoint {
     }
   }
 
-  private void removeUsers() {
+  private void removeUser() {
     List<Integer> rowsToRemove = getCheckedRowIndexes();
 
     if (rowsToRemove.size() == 0) {
-      showMessage("Вы не выбрали пользователей для удаления");
+      showMessage("Вы не выбрали пользователя для удаления");
       return;
-    } else if (rowsToRemove.size() == 1) {
+    } else if (rowsToRemove.size() > 1) {
+      showMessage("К сожалению, пока можно удалять только по одному пользователю");
+      return;
+    } else {
       String userToRemove = usersFlexTable.getText(rowsToRemove.get(0), 1) + " "
               + usersFlexTable.getText(rowsToRemove.get(0), 2) + " "
               + usersFlexTable.getText(rowsToRemove.get(0), 3);
 
       boolean canRemove = Window.confirm("Вы действительно хотите удалить пользователя " + userToRemove + "?");
       if (canRemove) {
-        removeUsers(rowsToRemove);
-      } else {
-        return;
-      }
-    } else {
-      boolean canRemove = Window.confirm("Вы действительно хотите удалить " + rowsToRemove.size() + " пользователей?");
-      if (canRemove) {
-        removeUsers(rowsToRemove);
+        removeUser(rowsToRemove);
       } else {
         return;
       }
     }
   }
 
-  private List<Integer> getCheckedRowIndexes() {
-    List<Integer> checkedRowsList = new ArrayList<>();
-    for (int i = 1; i < usersFlexTable.getRowCount(); i++) {
-      CheckBox userCheckBox = (CheckBox) usersFlexTable.getWidget(i, 0);
-      if (userCheckBox.getValue())
-        checkedRowsList.add(i);
-    }
-    return checkedRowsList;
+  private void removeUser(List<Integer> rowsToRemove) {
+    UserDto userToRemove = userList.get(rowsToRemove.get(0) - 1);
+    userService.removeUser(userToRemove, new MethodCallback<Boolean>() {
+      @Override
+      public void onFailure(Method method, Throwable throwable) {
+        showMessage("Не удалось удалить пользователя. Ошибка: " + throwable.getMessage());
+      }
+
+      @Override
+      public void onSuccess(Method method, Boolean isDeletedSuccessfully) {
+        if (isDeletedSuccessfully) {
+          for (int i = rowsToRemove.size() - 1; i >= 0; i--) {
+            usersFlexTable.removeRow(rowsToRemove.get(i));
+          }
+
+          for (int i = rowsToRemove.size() - 1; i >= 0; i--) {
+            userList.remove(rowsToRemove.get(i) - 1);
+          }
+        }
+      }
+    });
   }
 
-  private void removeUsers(List<Integer> rowsToRemove) {
-    // TODO: remove from DB
-
-    for (int i = rowsToRemove.size() - 1; i >= 0; i--) {
-      usersFlexTable.removeRow(rowsToRemove.get(i));
-    }
-
-    for (int i = rowsToRemove.size() - 1; i >= 0; i--) {
-      userList.remove(rowsToRemove.get(i) - 1);
-    }
-  }
-
-  private void editUser() {
+  private void updateUser() {
     List<Integer> checkedRows = getCheckedRowIndexes();
     if (checkedRows.size() == 0) {
       showMessage("Не выбран пользователь для редактирования");
@@ -274,22 +280,15 @@ public class UserManager implements EntryPoint {
 
       user.copyUser(newUser);
 
-      boolean userUpdated = false;
-
-      //TODO: edit user in DB
       userService.updateUser(user, new MethodCallback<UserDto>() {
         @Override
         public void onFailure(Method method, Throwable throwable) {
-          Window.alert("Не удалось обновить юзера. Ошибка: " + throwable.getMessage());
+          showMessage("Не удалось обновить юзера. Ошибка: " + throwable.getMessage());
         }
 
         @Override
         public void onSuccess(Method method, UserDto userDto) {
-          usersFlexTable.setText(row, 1, user.getLastName());
-          usersFlexTable.setText(row, 2, user.getFirstName());
-          usersFlexTable.setText(row, 3, user.getPatronymic());
-          usersFlexTable.setText(row, 4, formatter.format(user.getBirthDate()));
-
+          addUserDataToTable(userDto, row);
           clearAndCloseDialogBox();
         }
       });
@@ -309,11 +308,10 @@ public class UserManager implements EntryPoint {
       if (null == newUser)
         return;
 
-      //TODO: save new user in DB
       userService.saveUser(newUser, new MethodCallback<Integer>() {
         @Override
         public void onFailure(Method method, Throwable throwable) {
-          Window.alert("Не удалось сохранить пользователя. Ошибка: " + throwable.getMessage());
+          showMessage("Не удалось сохранить пользователя. Ошибка: " + throwable.getMessage());
         }
 
         @Override
@@ -329,13 +327,28 @@ public class UserManager implements EntryPoint {
     dialogBox.center();
   }
 
-  private void addNewUserToTable(UserDto user) {
+  private void addNewUserToTable(UserDto userDto) {
     int row = usersFlexTable.getRowCount();
     usersFlexTable.setWidget(row, 0, new CheckBox());
-    usersFlexTable.setText(row, 1, user.getLastName());
-    usersFlexTable.setText(row, 2, user.getFirstName());
-    usersFlexTable.setText(row, 3, user.getPatronymic());
-    usersFlexTable.setText(row, 4, formatter.format(user.getBirthDate()));
+    addUserDataToTable(userDto, row);
+  }
+
+  private void addUserDataToTable(UserDto userDto, int row) {
+    usersFlexTable.setText(row, 1, userDto.getLastName());
+    usersFlexTable.setText(row, 2, userDto.getFirstName());
+    usersFlexTable.setText(row, 3, userDto.getPatronymic());
+    usersFlexTable.setText(row, 4, formatter.format(userDto.getBirthDate()));
+    usersFlexTable.setText(row, 5, String.valueOf(userDto.getId()));
+  }
+
+  private List<Integer> getCheckedRowIndexes() {
+    List<Integer> checkedRowsList = new ArrayList<>();
+    for (int i = 1; i < usersFlexTable.getRowCount(); i++) {
+      CheckBox userCheckBox = (CheckBox) usersFlexTable.getWidget(i, 0);
+      if (userCheckBox.getValue())
+        checkedRowsList.add(i);
+    }
+    return checkedRowsList;
   }
 
   private UserDto createUserWithFieldsCheck () {
